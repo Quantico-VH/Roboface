@@ -4,7 +4,7 @@ f = face.Face()
 
 
 f.setSpeedAll(100)
-f.setSpeedHead(50)
+f.setSpeedHead(60)
 f.neutral()
 time.sleep(2)
 f.angry()

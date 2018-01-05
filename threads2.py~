@@ -1,0 +1,79 @@
+import numpy as np
+from threading import Thread, Event
+import face
+from time import sleep,time
+import random
+import os
+from scipy.io import wavfile
+from scipy.ndimage.filters import maximum_filter1d
+import matplotlib.pyplot as plt
+
+roboFace = face.Face(x_weight=0.8, y_weight=0.2)
+roboFace.setSpeedLips(127)
+
+def MoveLips(times,Amplitude,flag):
+    i=0
+    dt=times[1]-times[0]
+    while flag.isSet():
+        roboFace.moveLips(int(Amplitude[i]))
+        sleep(dt)
+	i=i+1
+        print(Amplitude[i],int(Amplitude[i]),i)
+    if ~flag.isSet():
+        roboFace.moveLips(0)
+        sleep(0.5)
+        
+
+def Talk(phrase,flag):
+    A="espeak -z -s 120 "
+    A=A+"'"+phrase+"'"
+    os.system(A)
+    flag.clear()
+
+def Speech(phrase):
+    flag=Event()
+    flag.set()
+    A="espeak -z -s 120 -w temp.wav "
+    A=A+"'"+phrase+"'"
+    os.system(A)
+    samplerate, data = wavfile.read('temp.wav') 
+    times = np.arange(len(data))/float(samplerate)
+    max_data = maximum_filter1d(data,size=500)
+    max_Amplitude=10
+    Amplitude = max_Amplitude*(max_data/np.max(max_data))
+
+    plt.figure(1)
+    plt.plot(times,data)
+    plt.plot(times,max_data,'r')
+    plt.show()
+    plt.figure(2)
+    plt.plot(times,Amplitude)
+    plt.show()
+    thread_movement=Thread(target=MoveLips,args=(times,Amplitude,flag))
+    thread_talk=Thread(target=Talk,args=(phrase,flag))
+
+    thread_talk.start()
+    thread_movement.start()
+    thread_talk.join()
+
+    thread_movement.join()
+
+    print(np.max(max_data))
+
+T=[]
+for i in range(1):
+	phrase="bidirectional_shift_register."
+	tstart=time()
+	Speech(phrase)
+	tstop=time()
+	T.append(tstop-tstart)
+	print("i= {}, Ellapsed Time = {}".format(i,tstop-tstart))
+	sleep(0.01)
+
+T=np.array(T)
+print(np.mean(T))
+
+
+
+
+

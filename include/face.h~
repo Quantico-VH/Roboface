@@ -202,6 +202,7 @@ public:
             unsafeApplyConfig(sadFace);
     }
 
+
 	void moveLips(int x)
 	{
 		ServoConfig<4> config = {{Face::left_top_lipServo_, Face::left_btm_lipServo_, Face::right_top_lipServo_, 			Face::right_btm_lipServo_},
@@ -212,20 +213,15 @@ public:
 
 	void setSpeedLips(int v)
 	{
-
 		serialInterface_->setSpeedCP(10,v);
 		serialInterface_->setSpeedCP(9,v);		
                 serialInterface_->setSpeedCP(6,v);
                 serialInterface_->setSpeedCP(3,v);
-
 	}
 	void setSpeedEyes(int v)
 	{
-
-		serialInterface_->setSpeedCP(3,v);
-		serialInterface_->setSpeedCP(4,v);		
-                
-
+		serialInterface_->setSpeedCP(4,v);
+		serialInterface_->setSpeedCP(12,v);		
 	}
 
 	void setSpeedHead(int v)
@@ -233,9 +229,38 @@ public:
 
 		serialInterface_->setSpeedCP(0,v);
 		serialInterface_->setSpeedCP(1,v);		
-               
+	}
+
+	void setSpeedEars(int v)
+	{
+
+		serialInterface_->setSpeedCP(2,v);
+		serialInterface_->setSpeedCP(7,v);		
 	}
 	
+	void setSpeedBrows(int v)
+	{
+
+		serialInterface_->setSpeedCP(5,v);
+		serialInterface_->setSpeedCP(8,v);		
+	}
+
+	void setSpeedAll(int v)
+	{
+	 	serialInterface_->setSpeedCP(0,v);
+		serialInterface_->setSpeedCP(1,v);
+		serialInterface_->setSpeedCP(2,v);
+		serialInterface_->setSpeedCP(3,v);
+                serialInterface_->setSpeedCP(4,v);
+		serialInterface_->setSpeedCP(5,v);
+		serialInterface_->setSpeedCP(6,v);
+		serialInterface_->setSpeedCP(7,v);
+		serialInterface_->setSpeedCP(8,v);
+		serialInterface_->setSpeedCP(9,v);
+                serialInterface_->setSpeedCP(10,v);
+		serialInterface_->setSpeedCP(12,v);
+	}
+
 	void setServosSpeed(std::vector<int> servos,std::vector<int> speeds)
 	{
 		if (servos.size() != speeds.size())

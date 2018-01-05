@@ -234,7 +234,7 @@ if __name__ == "__main__":
    
     ###################
     roboFace.setSpeedAll(100)
-    roboFace.setSpeedHead(80)
+    roboFace.setSpeedHead(60)
     ###################
     roboFace.neutral()
     # with h5py.File('trained/trained_webcam.h5',  "a") as f:

@@ -41,22 +41,16 @@ BOOST_PYTHON_MODULE_INIT(face)
                 "move head vertically")
         .def("moveHead", &Face::moveHead, (arg("x"), arg("y")),
                 "move head horizontally and vertically")
-	.def("moveLips", &Face::moveLips, (arg("x")),
+		.def("moveLips", &Face::moveLips, (arg("x")),
                 "move lips in order to the given amplitude (0,10)")
-        //.def("setServosSpeed", &Face::setServosSpeed, (arg("servos"), arg("speeds")))
-        //.def("setServosAccel", &Face::setServosAccel, (arg("servos"), arg("accels")))
+        .def("setServosSpeed", &Face::setServosSpeed, (arg("servos"), arg("speeds")))
+        .def("setServosAccel", &Face::setServosAccel, (arg("servos"), arg("accels")))
         .def("setSpeedLips", &Face::setSpeedLips, (arg("v")),
                 "Set Speed of Lips ")   
         .def("setSpeedHead", &Face::setSpeedHead, (arg("v")),
                 "Set Speed of Head ")   
         .def("setSpeedEyes", &Face::setSpeedEyes, (arg("v")),
-                "Set Speed of Eyes ")   
-        .def("setSpeedBrows", &Face::setSpeedBrows, (arg("v")),
-                "Set Speed of Brows ")        
-        .def("setSpeedEars", &Face::setSpeedEars, (arg("v")),
-                "Set Speed of Ears ")  
-        .def("setSpeedAll", &Face::setSpeedAll, (arg("v")),
-                "Set Speed for all motors")                
+                "Set Speed of Eyes ")                
   
     ;
 }
