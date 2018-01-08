@@ -24,10 +24,13 @@ from skimage.transform import resize, rotate
 import h5py
 import math
 import face
-from gtts import gTTS
 from pygame import mixer, time
 from time import sleep
 import os, subprocess, signal, psutil
+from scipy.io import wavfile
+from scipy.ndimage.filters import maximum_filter1d
+import matplotlib.pyplot as plt
+import math
 
 IMAGE_SIZE = (128, 128)
 IOD = 40.0
@@ -176,15 +179,51 @@ def mapAttributes(classes):
             result.append(attributes[i])
     return result
 
+def moveLips(times, Amplitude, flag):
+    i = 0
+    dt = times[1] - times[0]
+    current_amp = 0
+    current_idx = 0
+    while flag.isSet() and i < len(times):
+        delta_amp = current_amp - int(Amplitude[i])
+        if math.fabs(delta_amp) > 2:
+            roboFace.moveLips(current_amp - delta_amp)
+            sleep(dt * (i - current_idx))
+            current_amp = int(Amplitude[i])
+            current_idx = i
+        i = i + 1
+    if ~flag.isSet():
+        roboFace.moveLips(0)
+        sleep(0.1)
+
+
+def makeTalk(phrase, flag):
+    A = "espeak -z -s 120 "
+    A = A + "'" + phrase + "'"
+    os.system(A)
+    flag.clear()
+
 
 def say(text):
-    tts = gTTS(text=text, lang='en')
-    tts.save("say.mp3")
-    mixer.init()
-    mixer.music.load('say.mp3')
-    mixer.music.play()
-    # while mixer.music.get_busy():
-    # time.Clock().tick(10)
+    flag = Event()
+    flag.set()
+    A = "espeak -z -s 120 -w temp.wav "
+    A = A + "'" + phrase + "'"
+    os.system(A)
+    samplerate, data = wavfile.read('temp.wav')
+    times = np.arange(len(data)) / float(samplerate)
+    max_data = maximum_filter1d(data, size=500)
+    max_Amplitude = 10
+    Amplitude = max_Amplitude * (max_data / float(np.max(max_data)))
+
+    thread_movement = Thread(target=moveLips, args=(times, Amplitude, flag))
+    thread_talk = Thread(target=makeTalk, args=(phrase, flag))
+
+    thread_talk.start()
+    thread_movement.start()
+
+    thread_talk.join()
+    thread_movement.join()
 
 
 def sayDoSomething(pred_attr):
