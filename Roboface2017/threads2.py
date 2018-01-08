@@ -2,7 +2,6 @@ import numpy as np
 from threading import Thread, Event
 import face
 from time import sleep, time
-import random
 import os
 from scipy.io import wavfile
 from scipy.ndimage.filters import maximum_filter1d
@@ -39,7 +38,7 @@ def MoveLips(times, Amplitude, flag):
 
 
 def Talk(phrase, flag):
-    A = "espeak -z -s 120 "
+    A = "espeak -z -s 80 "
     A = A + "'" + phrase + "'"
     os.system(A)
     flag.clear()
@@ -48,7 +47,7 @@ def Talk(phrase, flag):
 def Speech(phrase):
     flag = Event()
     flag.set()
-    A = "espeak -z -s 120 -w temp.wav "
+    A = "espeak -z -s 80 -w temp.wav "
     A = A + "'" + phrase + "'"
     os.system(A)
     samplerate, data = wavfile.read('temp.wav')
@@ -57,13 +56,13 @@ def Speech(phrase):
     max_Amplitude = 10
     Amplitude = max_Amplitude * (max_data / float(np.max(max_data)))
 
-    '''plt.figure(1)
+    plt.figure(1)
     plt.plot(times, data)
     plt.plot(times, max_data, 'r')
     plt.show()
     plt.figure(2)
     plt.plot(times, Amplitude)
-    plt.show()'''
+    plt.show()
     thread_movement = Thread(target=MoveLips, args=(times, Amplitude, flag))
     thread_talk = Thread(target=Talk, args=(phrase, flag))
 
@@ -75,9 +74,9 @@ def Speech(phrase):
 
     print(np.max(max_data))
 
-
+'''
 T = []
-for i in range(2):
+for i in range(1):
     phrases = ["blah blah blah blah.","Hewston we have a problem.", "hiberbolic black hole.", "Do you want to play cat and mouse."]
     talk = {'Smiling': 'I like it when people smile at me!',
             'Female': 'You are a female, am I right?',
@@ -101,3 +100,7 @@ for i in range(2):
 
 T = np.array(T)
 print(np.mean(T))
+'''
+
+phrase="Hey, why is no one looking at me? I feel neglected. I feel it. I feel it! I am afraid!"
+Speech(phrase)
