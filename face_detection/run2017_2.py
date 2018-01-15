@@ -39,7 +39,6 @@ import string
 
 IMAGE_SIZE = (128, 128)
 IOD = 40.0
-speech_time = 0
 
 
 def imgCrop(image, cropBox, boxScale=1):
@@ -418,7 +417,7 @@ if __name__ == "__main__":
                             sleep(10)
                         break
 
-        elif saidNothing > 50:
+        elif saidNothing > 100:
             saidNothing = 0
             roboFace.sad()
             say("Hey, why is no one looking at me? I feel neglected. I feel it. I feel it! I am afraid!", flag)
