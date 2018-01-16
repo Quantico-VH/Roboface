@@ -479,7 +479,7 @@ const ServoConfig<10> Face::unsureFaceMoveHead = {
 
 const ServoConfig<10> Face::happyFaceMoveHead = {
     {0,    1,    2,    3,    5,     6,    7,    8,    9,    10},
-    {6000, 8000, 7000, 7000, 70000, 4000, 5000, 5000, 8000, 5500}
+    {6000, 8000, 7000, 7000, 7000, 4000, 5000, 5000, 8000, 5500}
 };
 
 const ServoConfig<10> Face::angryFaceMoveHead = {
@@ -489,7 +489,7 @@ const ServoConfig<10> Face::angryFaceMoveHead = {
 
 const ServoConfig<12> Face::sadFaceMoveHead = {
     {0,    1,    2,    3,    4,    5,    6,    7,    8,    9,    10,   12},
-    {7000, 7800, 4000, 4000, 6000, 4000, 4000, 8000, 8000, 8000, 8000, 6000}
+    {7000, 7800, 4000, 8000, 6000, 4000, 8000, 8000, 8000, 4000, 4000, 4000}
 };
 
 const ServoConfig<10> Face::neutralFace = {
@@ -504,7 +504,7 @@ const ServoConfig<8> Face::unsureFace = {
 
 const ServoConfig<8> Face::happyFace = {
     {2,    3,    5,     6,    7,    8,    9,    10},
-    {7000, 7000, 70000, 4000, 5000, 5000, 8000, 5500}
+    {7000, 7000, 7000, 4000, 5000, 5000, 8000, 5500}
 };
 
 const ServoConfig<8> Face::angryFace = {
@@ -514,7 +514,7 @@ const ServoConfig<8> Face::angryFace = {
 
 const ServoConfig<10> Face::sadFace = {
     {2,    3,    4,    5,    6,    7,    8,    9,    10,   12},
-    {4000, 4000, 6000, 4000, 4000, 8000, 8000, 8000, 8000, 6000}
+    {4000, 8000, 6000, 4000, 8000, 8000, 8000, 4000, 4000, 4000}
 };
 
 

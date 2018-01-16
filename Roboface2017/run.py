@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import cv2
 import numpy as np
 from keras.models import load_model
+from threading import Thread, Event
 # from scipy import misc
 from scipy.misc import imresize
 from skimage.transform import resize, rotate
@@ -29,8 +30,6 @@ from time import sleep
 import os, subprocess, signal, psutil
 from scipy.io import wavfile
 from scipy.ndimage.filters import maximum_filter1d
-import matplotlib.pyplot as plt
-import math
 
 IMAGE_SIZE = (128, 128)
 IOD = 40.0
@@ -179,6 +178,7 @@ def mapAttributes(classes):
             result.append(attributes[i])
     return result
 
+
 def moveLips(times, Amplitude, flag):
     i = 0
     dt = times[1] - times[0]
@@ -186,7 +186,7 @@ def moveLips(times, Amplitude, flag):
     current_idx = 0
     while flag.isSet() and i < len(times):
         delta_amp = current_amp - int(Amplitude[i])
-        if math.fabs(delta_amp) > 2:
+        if np.abs(delta_amp) > 2:
             roboFace.moveLips(current_amp - delta_amp)
             sleep(dt * (i - current_idx))
             current_amp = int(Amplitude[i])
@@ -198,16 +198,16 @@ def moveLips(times, Amplitude, flag):
 
 
 def makeTalk(phrase, flag):
-    A = "espeak -z -s 120 "
+    A = "espeak -z -s 90 "
     A = A + "'" + phrase + "'"
     os.system(A)
     flag.clear()
 
 
-def say(text):
+def say(phrase):
     flag = Event()
     flag.set()
-    A = "espeak -z -s 120 -w temp.wav "
+    A = "espeak -z -s 90 -w temp.wav "
     A = A + "'" + phrase + "'"
     os.system(A)
     samplerate, data = wavfile.read('temp.wav')
@@ -262,8 +262,12 @@ def getProbaStream(probStream, probs):
     return probStream
 
 
+
+
 if __name__ == "__main__":
     roboFace = face.Face(x_weight=0.8, y_weight=0.2)
+    roboFace.setSpeedAll(90)
+    roboFace.setSpeedLips(127)
 
     roboFace.neutral()
 # with h5py.File('trained/trained_webcam.h5',  "a") as f:
@@ -313,9 +317,7 @@ while rval:
                 if process != None:
                     os.kill(process.pid, signal.SIGTERM)
                 say("I'm sorry Dave. I'm afraid I can't do that.")
-                while mixer.music.get_busy():
-                    time.Clock().tick(10)
-                break
+
         elif probStream.shape[0] > 10 and len(probStream.shape) >= 2:
             if process != None:
                 os.kill(process.pid, signal.SIGTERM)
@@ -353,38 +355,27 @@ while rval:
 
             # postprocessing and reaction step
             sayDoSomething(best)
+            sleep(0.5)
             saidNothing = 0
-            while mixer.music.get_busy():
+            while flag.isSet():
                 _, frame = detectFace(frame)
                 probStream = None
                 cv2.imshow("Webcam Preview", frame)
                 rval, frame = vc.read()
-                key = cv2.waitKey(20)
-                if key == 27:  # exit on ESC
+                '''key = cv2.waitKey(20)
+                   if key == 27:  # exit on ESC
                     if process != None:
                         os.kill(process.pid, signal.SIGTERM)
-                    say("I'm sorry Dave. I'm afraid I can't do that.")
-                    while mixer.music.get_busy():
-                        time.Clock().tick(10)
-                    break
+                    say("I'm sorry Dave. I'm afraid I can't do that.")'''
 
     elif saidNothing > 200:
         saidNothing = 0
         roboFace.sad()
-        say("Hey, why is no one looking at me? I feel neglected. I feel it. I feel it! I am afraid!")
-        while mixer.music.get_busy():
-            _, frame = detectFace(frame)
-            probStream = None
-            cv2.imshow("Webcam Preview", frame)
-            rval, frame = vc.read()
-            key = cv2.waitKey(20)
-            if key == 27:  # exit on ESC
-                if process != None:
-                    os.kill(process.pid, signal.SIGTERM)
-                say("I'm sorry Dave. I'm afraid I can't do that.")
-                while mixer.music.get_busy():
-                    time.Clock().tick(10)
-                break
+        say("Hey, why is no one looking at me?")
+        say("I feel neglected.")
+        say("I feel it.")
+        say("I feel it!")
+        say("I am afraid!")
 
         if process == None:
             process = subprocess.Popen(['rhythmbox', 'creepyMusic.mp3'])
@@ -398,9 +389,6 @@ while rval:
         if process != None:
             os.kill(process.pid, signal.SIGTERM)
         say("I'm sorry Dave. I'm afraid I can't do that.")
-        while mixer.music.get_busy():
-            time.Clock().tick(10)
-        break
 cv2.destroyWindow("Webcam Preview")
 
 

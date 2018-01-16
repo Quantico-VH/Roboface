@@ -39,17 +39,6 @@ def onStart(name):
     print ('test')
 
 
-def on_word(name, location, length):
-    for i in range(0, length):
-        if str_val[location + i] in amplDict:
-            roboFace.moveLips(amplDict[str_val[location + i]])
-        else:
-            roboFace.moveLips(0)
-    sleep(0.1)
-
-
-def onend(name, completed):
-    print 'finishing', name, completed
 
 
 if __name__ == "__main__":
@@ -76,11 +65,9 @@ if __name__ == "__main__":
     engine.say(str_val)
     engine.runAndWait()'''
 
-    t = time.time()
-    os.system("espeak -v en -w test.wav 'Hewston we have a problem.' -z")
-    print ("Time: ")
-    print (time.time() - t)
-    t = time.time()
-    os.system("espeak -v en 'Hewston we have a problem.' -z")
-    print ("Time: ")
-    print (time.time() - t)
+    roboFace.happy()
+    sleep(5)
+    roboFace.sad()
+    sleep(5)
+    roboFace.unsure()
+    sleep(10)
