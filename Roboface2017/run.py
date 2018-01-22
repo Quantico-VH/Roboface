@@ -92,7 +92,7 @@ class Robot:
     # End of Declaration: Class variables
     ################################################################################
 
-    def __imgCrop(image, cropBox, boxScale=1):
+    def __imgCrop(self, _image, cropBox, boxScale=1):
         '''
         Crop an area around the detected face (by OpenCV) in order to feed it into the prediction algorithm (NN).
         '''
@@ -108,17 +108,17 @@ class Robot:
         y = max(cropBox[1] - 3 * off, y)
         x = max(cropBox[0] - 2 * off, x)
 
-        cropped = image[y:cropBox[1] + cropBox[3] + 90, x:cropBox[0] + cropBox[2] + 30]
+        cropped = _image[y:cropBox[1] + cropBox[3] + 90, x:cropBox[0] + cropBox[2] + 30]
         dims = cropped.shape
 
         return cropped, x, y
 
-    def __rotateBound(image, angle, center):
+    def __rotateBound(self, _image, angle, center):
         '''
         Rotates image. Used for image normalisation, so that the inter-ocular line is always horizontal for the NN.
         '''
         (cX, cY) = center
-        (h, w) = image.shape[:2]
+        (h, w) = _image.shape[:2]
 
         # grab the rotation matrix (applying the negative of the
         # angle to rotate clockwise), then grab the sine and cosine
@@ -136,7 +136,7 @@ class Robot:
         M[1, 2] += (nH / 2) - cY
 
         # perform the actual rotation and return the image
-        return cv2.warpAffine(image, M, (nW, nH))
+        return cv2.warpAffine(_image, M, (nW, nH))
 
     def __normaliseImage(self, image, eyes, xcrop, ycrop):
         '''
@@ -186,7 +186,7 @@ class Robot:
         faces = face_cascade.detectMultiScale(gray, 1.3, 5)
         unaltered_image = self.image.copy()
         eyes = None
-        normalised_image = None
+        self.normalised_image = None
         for face in faces:
             (x, y, w, h) = face
             # show face bounding box on Webcam Preview
@@ -212,10 +212,10 @@ class Robot:
                     offset2 = np.sqrt((eyes[1, 2] ** 2 + eyes[1, 3] ** 2)) * 0.5
                     real_eyes = eyes + np.array([[x + offset1, y + offset1, 0, 0], [x + offset2, y + offset2, 0, 0]])
                     real_eyes = np.sort(real_eyes, axis=0)
-                    cropped_image, xcrop, ycrop = self.imgCrop(unaltered_image, face)
-                    self.normalised_image = self.normaliseImage(cropped_image, real_eyes, -xcrop, -ycrop)
+                    cropped_image, xcrop, ycrop = self.__imgCrop(unaltered_image, face)
+                    self.normalised_image = self.__normaliseImage(cropped_image, real_eyes, -xcrop, -ycrop)
 
-    def mapAttributes(classes):
+    def mapAttributes(self, classes):
         '''
         Map the output probabilities to the correpsonding names, like 'smile', etc.
         '''
@@ -234,7 +234,7 @@ class Robot:
     ################################################################################
 
     def __undersampled_lip_tragectory(self, phrase, Sleep_Time):
-        A = "espeak -z -s 80 -v female5 -w test.wav "
+        A = "espeak -z -s 80 -v female5 -w temp_phrase.wav "
         A = A + "'" + phrase + "'"
         os.system(A)
         samplerate, data = wavfile.read('temp_phrase.wav')
@@ -248,7 +248,8 @@ class Robot:
         n = Sleep_Time * samplerate
         Amp = []
         T = []
-        for i in range(0, N):
+        i = 0
+        while (i * n < N):
             Amp.append(Amplitude[int(i * n)])
             T.append(times[int(i * n)])
             i = i + 1
@@ -273,15 +274,15 @@ class Robot:
         os.system(A)
         self.talk_flag.clear()
 
-    def say(self, input):
-        phrases = sent_tokenize(input)
+    def say(self, _input):
+        phrases = sent_tokenize(_input)
         for phrase in phrases:
             phrase = phrase.replace("'", " ")
             self.talk_flag.set()
             Sleep_Time = 0.05
             Amplitude, Time = self.__undersampled_lip_tragectory(phrase, Sleep_Time)
             thread_movement = Thread(target=self.__moveLips, args=(Sleep_Time, Amplitude))
-            thread_talk = Thread(target=self.talk, args=(phrase))
+            thread_talk = Thread(target=self.__talk, args=( phrase, ))
             thread_talk.start()
             thread_movement.start()
 
@@ -289,6 +290,7 @@ class Robot:
                 self.detectFace()
                 self.probStream = None
                 self.refresh_image()
+
 
     ################################################################################
     # End of Declaration: say - Talk - MoveLips
